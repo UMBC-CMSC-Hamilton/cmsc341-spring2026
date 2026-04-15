@@ -1,0 +1,23 @@
+#ifndef __HASH_H__
+#define __HASH_H__
+
+#include<string>
+
+class HashTable
+{
+ public:
+  HashTable();
+  void insert(string s);
+  bool find(string s);
+  double load_factor() const;
+  void rebuild(int new_size);
+  ~HashTable();
+ private:
+  int hash(string s);
+  bool is_prime(int n);
+  string * array;
+  int capacity; // the size of the array (L)
+  int size; // the number of elements (n)
+};
+
+#endif

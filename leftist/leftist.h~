@@ -1,0 +1,34 @@
+#ifndef __LEFTIST_H__
+#define __LEFTIST_H__
+
+
+class Node
+{
+ public:
+  Node(int new_pri=0)
+    : priority(new_pri), npl(0), p_left(nullptr), p_right(nullptr)
+    {}
+  Node * p_left;
+  Node * p_right;
+  int priority;
+  int npl;
+};
+
+
+class LeftistHeap
+{
+ public:
+  LeftistHeap();
+  void insert(int x);
+  int getMin();
+  int peekMin();
+  void clear();
+  void merge(LeftistHeap & lh);
+  ~LeftistHeap();
+ private:
+  Node * merge(Node * a, Node * b);
+  
+  Node * p_root;
+};
+
+#endif

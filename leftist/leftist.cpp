@@ -1,0 +1,143 @@
+#include "leftist.h"
+
+
+/*class Node
+{
+ public:
+  Node(int new_pri=0)
+    : priority(new_pri), npl(0), p_left(nullptr), p_right(nullptr)
+    {}
+  Node * p_left;
+  Node * p_right;
+  int priority;
+  int npl;
+};
+*/
+
+LeftistHeap::LeftistHeap()
+  : p_root(nullptr)
+{}
+
+void LeftistHeap::insert(int x)
+{
+  Node * insert_node = new Node(x);
+  p_root = merge(p_root, insert_node);
+}
+
+int LeftistHeap::getMin()
+{
+  if(p_root)
+  {
+    int remember = p_root->priority;
+    Node * old_root = p_root;
+
+    p_root = merge(p_root->p_left, p_root->p_right);
+
+    delete old_root;
+    return remember;
+  }
+  
+  // throw an exception here too
+  return -1;
+}
+
+int LeftistHeap::peekMin()
+{
+  // options, probably not return -1, throw an exception. 
+  return p_root ? p_root->priority : -1;
+}
+
+void LeftistHeap::clear()
+{
+  clear_node(p_root);
+  p_root = nullptr;
+}
+
+void LeftistHeap::clear_node(Node * p_kill)
+{
+  if(p_kill)
+  {
+    clear_node(p_kill->p_left);
+    clear_node(p_kill->p_right);
+    delete p_kill;
+  }
+}
+
+void LeftistHeap::merge(LeftistHeap & lh)
+{
+  p_root = merge(p_root, lh.p_root);
+}
+
+LeftistHeap::~LeftistHeap()
+{
+  clear();
+}
+
+Node * LeftistHeap::merge(Node * a, Node * b)
+{
+  // insert to the right
+  if(a && b)
+  {
+    if(a->priority <= b->priority)
+    {
+      // a gets returned
+      // merge a's right child with b.
+      a->p_right = merge(a->p_right, b);
+      // update npls
+      a->npl = calculate_npl(a);
+      // check NPLs
+      if(a->p_left && a->p_right && a->p_left->npl < a->p_right->npl)
+      {
+	Node * p_temp = a->p_left;
+	a->p_left = a->p_right;
+	a->p_right = p_temp;
+      }
+      else if (!a->p_left && a->p_right)
+      {
+	a->p_left = a->p_right;
+	a->p_right = nullptr;
+      }
+      
+      return a;
+    }
+    else
+    {
+      b->p_right = merge(b->p_right, a);
+      // CHECK NPLS
+      b->npl = calculate_npl(b);
+      if(b->p_left && b->p_right && b->p_left->npl < b->p_right->npl)
+      {
+        Node * p_temp = b->p_left;
+        b->p_left = b->p_right;
+        b->p_right = p_temp;
+      }
+      else if (!b->p_left && b->p_right)
+      {
+        b->p_left = b->p_right;
+        b->p_right = nullptr;
+      }
+      return b;
+    }
+  }
+  else if (a)
+  {
+    return a;
+  }
+  else if (b)
+  {
+    return b;
+  }
+  // if this happens we really screwed up.
+  return nullptr;
+}
+
+int LeftistHeap::calculate_npl(Node * node)
+{
+  // npl(node) = min(npl(left), npl(right)) + 1
+  int left_npl = node->p_left ? node->p_left->npl : -1;
+  int right_npl = node->p_right? node->p_right->npl : -1;
+  if (left_npl < right_npl)
+    return left_npl + 1;
+  else
+    return right_npl + 1;
+}
